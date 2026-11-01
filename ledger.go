@@ -4,12 +4,12 @@ type Ledger struct { Balances map[string]int; Seen map[string]bool; mu sync.Mute
 func (l *Ledger) Transfer(id, from, to string, amount int) error {
  l.mu.Lock(); defer l.mu.Unlock()
  if id=="" || from=="" || to=="" || from==to || amount<=0 { return errors.New("invalid transfer") }
- if l.Seen == nil { l.Seen = map[string]bool{} }
- if l.Seen[id] { return errors.New("duplicate transfer") }
+ if l.Seen != nil && l.Seen[id] { return errors.New("duplicate transfer") }
  if l.Balances == nil { l.Balances = map[string]int{} }
  if l.Balances[from] < amount { return errors.New("insufficient balance") }
  l.Balances[from] -= amount
  l.Balances[to] += amount
+ if l.Seen == nil { l.Seen = map[string]bool{} }
  l.Seen[id] = true
  return nil
 }
